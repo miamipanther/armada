@@ -78,25 +78,28 @@ commands:
     - run:      
         name: Update version, appVersion and image tag to match current $RELEASE_TAG
         command: |
-          RELEASE_TAG=${CIRCLE_BRANCH}
+          RELEASE_TAG=v1.2.3
           find . \( -name "Chart.yaml" -o -name "values.yaml" \) -exec sed -i s/LATEST/$RELEASE_TAG/ {} +
 
     - run:
         name: Build new packages and index.yaml
         command: |
+          pwd
+          ls charts
+          ls deployment
           helm package deployment/armada/ -d charts/armada/
           helm package deployment/executor -d charts/armada/
           helm package deployment/executor-cluster-monitoring/ -d charts/armada/
           helm repo index charts/
 
-    - run:
-        name: Commit and push updated charts
-        command: |
-          cd charts
-          git -c user.name='GR OSS' -c user.email=github@gr-oss.io commit -qam "Pushing new helm charts at version $RELEASE_TAG"
-          eval "$(ssh-agent -s)"
-          echo -e "$ARMADA_CHART_UPDATE_KEY" | ssh-add - > /dev/null
-          git push -q origin master
+#    - run:
+#        name: Commit and push updated charts
+#        command: |
+#          cd charts
+#          git -c user.name='GR OSS' -c user.email=github@gr-oss.io commit -qam "Pushing new helm charts at version $RELEASE_TAG"
+#          eval "$(ssh-agent -s)"
+#          echo -e "$ARMADA_CHART_UPDATE_KEY" | ssh-add - > /dev/null
+#          git push -q origin master
 
 jobs:
   build:
@@ -215,7 +218,7 @@ jobs:
       - deploy-executor:
           worker-id: "5"
 
-  release:
+  release-test:
     docker:
       - image: circleci/golang:1.12.6
         environment:
@@ -225,41 +228,41 @@ jobs:
       - checkout
       - setup_remote_docker
 
-      - run:
-          name: Build armadactl release artifacts
-          command: make build-armadactl-release RELEASE_VERSION=${CIRCLE_TAG}
-
-      - store_artifacts:
-          path: dist/*
-
-      - run:
-          name: Upload artifacts to Github release
-          command: |
-            for artifact in ./dist/*; do
-              ./scripts/upload-github-release-asset.sh ${GITHUB_TOKEN} ${CIRCLE_TAG} $artifact
-            done
-
-            ./scripts/add-checksum-summary.sh ${GITHUB_TOKEN} ${CIRCLE_TAG}
-
-      - run:
-          name: Publish images
-          command: |
-            TAG=${CIRCLE_SHA1}
-            RELEASE_TAG=${CIRCLE_TAG}
-
-            echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin
-
-            docker pull gresearchdev/armada-server-dev:${TAG}
-            docker tag gresearchdev/armada-server-dev:${TAG} gresearchdev/armada-server:${RELEASE_TAG}
-            docker push gresearchdev/armada-server:${RELEASE_TAG}
-
-            docker pull gresearchdev/armada-executor-dev:${TAG}
-            docker tag gresearchdev/armada-executor-dev:${TAG} gresearchdev/armada-executor:${RELEASE_TAG}
-            docker push gresearchdev/armada-executor:${RELEASE_TAG}
-
-            docker pull gresearchdev/armada-armadactl-dev:${TAG}
-            docker tag gresearchdev/armada-armadactl-dev:${TAG} gresearchdev/armada-armadactl:${RELEASE_TAG}
-            docker push gresearchdev/armada-armadactl:${RELEASE_TAG}
+#      - run:
+#          name: Build armadactl release artifacts
+#          command: make build-armadactl-release RELEASE_VERSION=${CIRCLE_TAG}
+#
+#      - store_artifacts:
+#          path: dist/*
+#
+#      - run:
+#          name: Upload artifacts to Github release
+#          command: |
+#            for artifact in ./dist/*; do
+#              ./scripts/upload-github-release-asset.sh ${GITHUB_TOKEN} ${CIRCLE_TAG} $artifact
+#            done
+#
+#            ./scripts/add-checksum-summary.sh ${GITHUB_TOKEN} ${CIRCLE_TAG}
+#
+#      - run:
+#          name: Publish images
+#          command: |
+#            TAG=${CIRCLE_SHA1}
+#            RELEASE_TAG=${CIRCLE_TAG}
+#
+#            echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin
+#
+#            docker pull gresearchdev/armada-server-dev:${TAG}
+#            docker tag gresearchdev/armada-server-dev:${TAG} gresearchdev/armada-server:${RELEASE_TAG}
+#            docker push gresearchdev/armada-server:${RELEASE_TAG}
+#
+#            docker pull gresearchdev/armada-executor-dev:${TAG}
+#            docker tag gresearchdev/armada-executor-dev:${TAG} gresearchdev/armada-executor:${RELEASE_TAG}
+#            docker push gresearchdev/armada-executor:${RELEASE_TAG}
+#
+#            docker pull gresearchdev/armada-armadactl-dev:${TAG}
+#            docker tag gresearchdev/armada-armadactl-dev:${TAG} gresearchdev/armada-armadactl:${RELEASE_TAG}
+#            docker push gresearchdev/armada-armadactl:${RELEASE_TAG}
 
       - install-helm-client
 
@@ -288,23 +291,5 @@ workflows:
   version: 2
   build_and_deploy:
     jobs:
-      - build
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
-      - release:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-      - release-dotnet-client:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
+      - release-test
 
