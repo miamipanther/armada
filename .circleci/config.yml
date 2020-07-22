@@ -78,7 +78,7 @@ commands:
     - run:      
         name: Update version, appVersion and image tag to match current $RELEASE_TAG
         command: |
-          RELEASE_TAG=v1.2.3
+          RELEASE_TAG=
           find . \( -name "Chart.yaml" -o -name "values.yaml" \) -exec sed -i s/LATEST/$RELEASE_TAG/ {} +
 
     - run:
@@ -228,13 +228,13 @@ jobs:
       - checkout
       - setup_remote_docker
 
-#      - run:
-#          name: Build armadactl release artifacts
-#          command: make build-armadactl-release RELEASE_VERSION=${CIRCLE_TAG}
-#
-#      - store_artifacts:
-#          path: dist/*
-#
+      - run:
+          name: Build armadactl release artifacts
+          command: make build-armadactl-release RELEASE_VERSION=${CIRCLE_TAG}
+
+      - store_artifacts:
+          path: dist/*
+
 #      - run:
 #          name: Upload artifacts to Github release
 #          command: |
