@@ -2,7 +2,7 @@
 
 ## Getting started 
 
-There are many ways you can setup you local environment, this is just a basic quick example of how to setup everything you'll need to get started running and developing Armada.
+There are many ways you can setup your local environment, this is just a basic quick example of how to set up everything you'll need to get started running and developing Armada.
 
 ### Pre-requisites
 To follow this section it is assumed you have:
