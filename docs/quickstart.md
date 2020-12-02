@@ -74,7 +74,9 @@ kind create cluster --name quickstart-armada-server --config ./docs/quickstart/k
 export KUBECONFIG="$(kind get kubeconfig --name="quickstart-armada-server")"
 
 # Install Redis
-helm install redis stable/redis-ha -f docs/quickstart/redis-values.yaml
+helm repo add dandydev https://dandydeveloper.github.io/charts
+helm install dandydev/redis-ha -f docs/quickstart/redis-values.yaml --generate-name
+
 
 # Install Prometheus
 helm install prometheus-operator stable/prometheus-operator -f docs/quickstart/server-prometheus-values.yaml
