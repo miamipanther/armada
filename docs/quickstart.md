@@ -71,7 +71,7 @@ All commands are intended to be run from the root of the repository.
 kind create cluster --name quickstart-armada-server --config ./docs/quickstart/kind-config-server.yaml
 
 # Set cluster as current context
-export KUBECONFIG="$(kind get kubeconfig-path --name="quickstart-armada-server")"
+export KUBECONFIG="$(kind get kubeconfig --name="quickstart-armada-server")"
 
 # Install Redis
 helm install redis stable/redis-ha -f docs/quickstart/redis-values.yaml
