@@ -79,7 +79,10 @@ helm install dandydev/redis-ha -f docs/quickstart/redis-values.yaml --generate-n
 
 
 # Install Prometheus
-helm install prometheus-operator stable/prometheus-operator -f docs/quickstart/server-prometheus-values.yaml
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add stable https://charts.helm.sh/stable
+helm repo update
+helm install prometheus-community/kube-prometheus-stack --generate-name 
 
 # Install Armada server
 helm install armada-server gresearch/armada -f ./docs/quickstart/server-values.yaml
