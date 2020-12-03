@@ -44,7 +44,7 @@ All the commands below should be executed in Git Bash.
 Make sure helm is configured to use the official Helm stable charts:
 
 ```bash
-helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo add stable https://charts.helm.sh/stable
 ```
 
 And add the G-Research helm charts repository, too:
@@ -73,7 +73,7 @@ kind create cluster --name quickstart-armada-server --config ./docs/quickstart/k
 # Set cluster as current context
 export KUBECONFIG="$(kind get kubeconfig --name="quickstart-armada-server")"
 
-# Install Redis
+# Install Redis  
 helm repo add dandydev https://dandydeveloper.github.io/charts
 helm install dandydev/redis-ha -f docs/quickstart/redis-values.yaml --generate-name
 
@@ -83,6 +83,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo add stable https://charts.helm.sh/stable
 helm repo update
 helm install prometheus-community/kube-prometheus-stack --generate-name 
+
 
 # Install Armada server
 helm install armada-server gresearch/armada -f ./docs/quickstart/server-values.yaml
